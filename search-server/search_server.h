@@ -32,36 +32,31 @@ public:
                      DocumentStatus status, 
                      const std::vector<int>& ratings);
     
-     template <typename DocumentPredicate>
-    std::vector<Document> FindTopDocuments(std::string_view raw_query, 
-                                           DocumentPredicate document_predicate) const;
-
-
-       template <typename ExecutionPolicy, typename DocumentPredicate>
-    std::vector<Document> FindTopDocuments(ExecutionPolicy &&policy,
-                                           std::string_view raw_query, 
-                                           DocumentPredicate document_predicate) const;
-
+  
+  template <typename DocumentPredicate>
+std::vector<Document> FindTopDocuments(std::string_view raw_query,DocumentPredicate document_predicate) const;
     
-    std::vector<Document> FindTopDocuments(std::string_view raw_query, 
-                                           DocumentStatus status) const;
-
-template <typename ExecutionPolicy>
-    std::vector<Document> FindTopDocuments(ExecutionPolicy &&policy, 
-                                           std::string_view raw_query, 
-                                           DocumentStatus status) const;
- 
-        
-        
-    std::vector<Document> FindTopDocuments(std::string_view raw_query) const;
-
-
- template <typename ExecutionPolicy>
-    std::vector<Document> FindTopDocuments(ExecutionPolicy &&policy, 
-                                           std::string_view raw_query) const;
-    
-    
+template <typename ExecutionPolicy, typename DocumentPredicate>
+    std::vector<Document> FindTopDocuments(ExecutionPolicy &&policy, std::string_view raw_query,DocumentPredicate document_predicate) const;
        
+ template <typename ExecutionPolicy>
+std::vector<Document> FindTopDocuments(ExecutionPolicy &&policy,std::string_view raw_query,DocumentStatus status) const;
+
+std::vector<Document> FindTopDocuments(std::string_view raw_query, DocumentStatus status) const;
+
+   template <typename ExecutionPolicy>
+std::vector<Document> FindTopDocuments(ExecutionPolicy&& policy, std::string_view raw_query) const;
+ 
+std::vector<Document> FindTopDocuments(std::string_view raw_query) const;  
+
+
+
+
+
+
+    
+  
+    
     
     int GetDocumentCount() const;
     
@@ -126,8 +121,7 @@ private:
     Query ParseQuery(std::string_view& text) const;
         
     double ComputeWordInverseDocumentFreq(std::string_view& word) const;
-    
-
+ 
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(const Query& query, 
                                            DocumentPredicate document_predicate) const;
@@ -139,8 +133,6 @@ private:
     std::vector<Document> FindAllDocuments(const std::execution::parallel_policy&,
                                            const Query& query, 
                                            DocumentPredicate document_predicate) const;
-    
-    
 };
  
 template <typename StringContainer>
@@ -152,17 +144,16 @@ SearchServer::SearchServer(const StringContainer& stop_words) : stop_words_(Make
  
 
 
+
 template <typename DocumentPredicate>
-std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, 
-                                                     DocumentPredicate document_predicate) const {
+std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,DocumentPredicate document_predicate) const {
     return FindTopDocuments(std::execution::seq,
                             raw_query, 
                             document_predicate);
 }
  
-          template <typename ExecutionPolicy, typename DocumentPredicate>
-    std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy &&policy, std::string_view raw_query, 
-                                           DocumentPredicate document_predicate) const {
+template <typename ExecutionPolicy, typename DocumentPredicate>
+    std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy &&policy, std::string_view raw_query,DocumentPredicate document_predicate) const {
         const auto query = ParseQuery(raw_query);
         auto matched_documents = FindAllDocuments(policy, query, document_predicate);
     
@@ -181,53 +172,32 @@ std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,
     
         return matched_documents;
     }
-
-
-//==============================
-
-
-std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, 
-                                                     DocumentStatus status) const {
-    return FindTopDocuments(std::execution::seq, raw_query, status);
-}
-
-
+ 
+        
  template <typename ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(const ExecutionPolicy &&policy, 
-                                                     std::string_view raw_query, 
+std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy &&policy,std::string_view raw_query, 
                                                      DocumentStatus status) const {
-    return FindTopDocuments(policy,
-                            raw_query, 
-                            [status](int document_id, 
-                                     DocumentStatus document_status, 
-                                     int rating) {
+    return FindTopDocuments(policy,raw_query, 
+                            [&status](int document_id, 
+                                     DocumentStatus document_status,int rating) {
                                          return document_status == status;
                                      }
                            );
 }
+    
+   template <typename ExecutionPolicy>
+std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy&& policy, std::string_view raw_query) const {
+    return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
+}
  
 
- std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query) const {
-    return FindTopDocuments(std::execution::seq, 
-                            raw_query,
-                            DocumentStatus::ACTUAL);
-} 
-
-
-
-
- template <typename ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(const ExecutionPolicy &&policy, 
-                                                     std::string_view raw_query) const {
-    return FindTopDocuments(policy,
-                            raw_query, 
-                            DocumentStatus::ACTUAL);
-}
 
 
 
 
 
+
+ 
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(const Query& query, 
                                                      DocumentPredicate document_predicate) const {
