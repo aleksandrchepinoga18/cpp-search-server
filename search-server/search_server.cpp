@@ -28,12 +28,13 @@ void SearchServer::AddDocument(int document_id,
     }
 }
  
+std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query) const {
+    return FindTopDocuments(std::execution::seq, raw_query, DocumentStatus::ACTUAL);
+}
 
-
-
-
-
-
+std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, DocumentStatus status) const {
+    return FindTopDocuments(std::execution::seq, raw_query, status);
+}
 
 
  
