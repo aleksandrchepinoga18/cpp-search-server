@@ -1,11 +1,10 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include <cassert>
 #include <iostream>
-#include "document.h"
+
  
-using namespace std::string_literals;
+
  
 template <typename IteratorRanges>
 class IteratorRange {
@@ -32,13 +31,7 @@ private:
     size_t size_;
 };
  
-std::ostream& operator<<(std::ostream& out, const Document& document) {
-    out << "{ document_id = "s << document.id 
-        << ", relevance = "s << document.relevance 
-        << ", rating = "s << document.rating << " }"s;
-    return out;
-}
- 
+
 template <typename To_Out>
 std::ostream& operator<<(std::ostream& out, const IteratorRange<To_Out>& sheet) {
     auto helper = sheet.begin();
@@ -57,9 +50,9 @@ public :
         auto full_size = distance(result_begin, result_end);
         Paginatorr helper = result_begin;
         
-        for (auto i = 0; i < full_size/size_of_sheet; ++i) {
+        for (auto i = 0; i < full_size / size_of_sheet; ++i) {
             sheets.push_back(IteratorRange<Paginatorr>(helper, helper+ size_of_sheet));
-            helper=helper+size_of_sheet;
+            helper = helper + size_of_sheet;
         }
         
         if (helper!= result_end) {
