@@ -225,7 +225,7 @@ int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
     return rating_sum /static_cast<int>(ratings.size());
 }
  
-SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view& text) const {
+SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) const {
     if (text.empty()) {
         throw std::invalid_argument("Query word is empty"s);
     }
@@ -243,7 +243,7 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view& text) con
     return {text, is_minus, IsStopWord(text)};
 }
  
-SearchServer::Query SearchServer::ParseQuery(std::string_view& text) const {
+SearchServer::Query SearchServer::ParseQuery(std::string_view text) const {
     Query result;
     
     for (std::string_view& word : SplitIntoWords(text)) {
@@ -274,6 +274,6 @@ SearchServer::Query SearchServer::ParseQuery(std::string_view& text) const {
     return result;
 }
  
-double SearchServer::ComputeWordInverseDocumentFreq(std::string_view& word) const {
+double SearchServer::ComputeWordInverseDocumentFreq(std::string_view word) const {
     return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
 }
